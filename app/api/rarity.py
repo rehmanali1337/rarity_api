@@ -11,6 +11,7 @@ import time
 
 
 def connect_drivers():
+    time.sleep(30)
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument("--headless")
