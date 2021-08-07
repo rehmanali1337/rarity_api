@@ -8,6 +8,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common import exceptions
 import time
+from api.models import Collection
+import traceback
 
 
 def connect_drivers():
@@ -15,7 +17,7 @@ def connect_drivers():
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument("--headless")
-    while len(store.DRIVERS) < 2:
+    while len(store.DRIVERS) < 4:
         try:
             print('Driver is connecting to hub')
             driver = webdriver.Remote(
@@ -37,13 +39,34 @@ def connect_drivers():
 
 
 def get_rank_and_score(driver: webdriver.Remote, collection_slug, asset_name):
-    URL = f'{store.RARITY_BASE_URL}/{collection_slug}/view/{asset_name}'
-    driver.get(URL)
+    try:
+        URL = f'{store.RARITY_BASE_URL}/{collection_slug}/view/{asset_name}'
+        driver.get(URL)
+        WebDriverWait(driver, 60).until(
+            EC.presence_of_element_located((By.LINK_TEXT, "View on OpenSea"))
+        )
+        rank = driver.find_element_by_xpath(
+            '//*[@id="__layout"]/div/div[3]/div[2]/div/div[1]/div/div[1]/div[1]/span').text
+        score = driver.find_element_by_xpath(
+            '//*[@id="__layout"]/div/div[3]/div[2]/div/div[2]/div/div[1]/div[2]').text
+        return (rank, score)
+    except Exception as e:
+        traceback.print_exc()
+        return None, None
+
+
+def get_collections_list(driver: webdriver.Remote):
+    driver.get(store.RARITY_BASE_URL)
     WebDriverWait(driver, 60).until(
-        EC.presence_of_element_located((By.LINK_TEXT, "View on OpenSea"))
+        EC.presence_of_element_located((By.CLASS_NAME, "dataTable"))
     )
-    rank = driver.find_element_by_xpath(
-        '//*[@id="__layout"]/div/div[3]/div[2]/div/div[1]/div/div[1]/div[1]/span').text
-    score = driver.find_element_by_xpath(
-        '//*[@id="__layout"]/div/div[3]/div[2]/div/div[2]/div/div[1]/div[2]').text
-    return (rank, score)
+    table = driver.find_element_by_class_name("dataTable")
+    rows = table.find_elements_by_tag_name("tr")[1:]
+    collections = list()
+    for row in rows:
+        col_name = row.text.split('\n')[1]
+        col_url = row.find_element_by_tag_name('a').get_attribute('href')
+        col_slug = col_url.split('/')[-1]
+        collections.append(Collection(collection_name=col_name,
+                                      collection_url=col_url, collection_slug=col_slug))
+    return collections
