@@ -13,5 +13,6 @@ async def add_new_ride(collection_slug: str, asset_name: str):
     driver = store.DRIVERS.pop()
     rank, score = get_rank_and_score(
         driver, collection_slug, asset_name)
+    store.DRIVERS.append(driver)
     return ResponseModel(status=status.HTTP_200_OK, collection_slug=collection_slug,
                          asset_name=asset_name, rarity_score=score, rarity_rank=rank)
