@@ -1,0 +1,90 @@
+version: '3'
+services: 
+  selenium-hub:
+      image: selenium/hub
+      container_name: selenium-hub
+      ports: 
+          - "4444:4444"
+      environment: 
+          GRID_MAX_SESSION: 32
+
+
+  chrome_1:
+      image: selenium/node-chrome
+      depends_on: 
+          - selenium-hub
+      environment: 
+          HUB_PORT_4444_TCP_ADDR: selenium-hub
+          HUB_PORT_4444_TCP_PORT: 4444
+          NODE_MAX_INSTANCES: 1
+          JAVA_OPTS: -Dwebdriver.chrome.whitelistedIps=
+      links: 
+          - selenium-hub
+      volumes: 
+          - /dev/shm/:/dev/shm
+              
+  chrome_2:
+      image: selenium/node-chrome
+      depends_on: 
+          - selenium-hub
+      environment: 
+          HUB_PORT_4444_TCP_ADDR: selenium-hub
+          HUB_PORT_4444_TCP_PORT: 4444
+          NODE_MAX_INSTANCES: 1
+          JAVA_OPTS: -Dwebdriver.chrome.whitelistedIps=
+      links: 
+          - selenium-hub
+      volumes: 
+          - /dev/shm/:/dev/shm
+
+  chrome_3:
+      image: selenium/node-chrome
+      depends_on: 
+          - selenium-hub
+      environment: 
+          HUB_PORT_4444_TCP_ADDR: selenium-hub
+          HUB_PORT_4444_TCP_PORT: 4444
+          NODE_MAX_INSTANCES: 1
+          JAVA_OPTS: -Dwebdriver.chrome.whitelistedIps=
+      links: 
+          - selenium-hub
+      volumes: 
+          - /dev/shm/:/dev/shm
+  chrome_4:
+      image: selenium/node-chrome
+      depends_on: 
+          - selenium-hub
+      environment: 
+          HUB_PORT_4444_TCP_ADDR: selenium-hub
+          HUB_PORT_4444_TCP_PORT: 4444
+          NODE_MAX_INSTANCES: 1
+          JAVA_OPTS: -Dwebdriver.chrome.whitelistedIps=
+      links: 
+          - selenium-hub
+      volumes: 
+          - /dev/shm/:/dev/shm
+  chrome_5:
+      image: selenium/node-chrome
+      depends_on: 
+          - selenium-hub
+      environment: 
+          HUB_PORT_4444_TCP_ADDR: selenium-hub
+          HUB_PORT_4444_TCP_PORT: 4444
+          NODE_MAX_INSTANCES: 1
+          JAVA_OPTS: -Dwebdriver.chrome.whitelistedIps=
+      links: 
+          - selenium-hub
+      volumes: 
+          - /dev/shm/:/dev/shm
+
+  app:  
+      build: 
+          context: .
+      volumes: 
+          - ./app:/app
+      depends_on: 
+          - selenium-hub
+      expose: 
+          - 5000
+      ports: 
+          - "5000:5000"

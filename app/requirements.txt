@@ -1,0 +1,6 @@
+selenium
+discord.py
+requests
+apscheduler
+fastapi
+uvicorn
